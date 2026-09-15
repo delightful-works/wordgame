@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>끝말잇기 게임</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .word-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            min-height: 36px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #007bff;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            height: 20px;
+            font-size: 14px;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        .history {
+            font-size: 14px;
+            color: #6c757d;
+            text-align: left;
+            max-height: 100px;
+            overflow-y: auto;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>끝말잇기 게임</h1>
+    
+    <!-- 현재 제시어 표시 -->
+    <div class="word-display" id="current-word">제시어: (비어 있음)</div>
+    
+    <!-- 입력창 및 버튼 -->
+    <div class="input-group">
+        <input type="text" id="word-input" placeholder="단어를 입력하세요" autofocus>
+        <button id="submit-btn">입력</button>
+    </div>
+    
+    <!-- 에러 메시지 표시 -->
+    <div class="message" id="message-box"></div>
+    
+    <!-- 진행된 단어 기록 -->
+    <div class="history" id="word-history">이전 기록: 없음</div>
+</div>
+
+<script>
+    // 필요한 HTML 요소 가져오기
+    const currentWordEl = document.getElementById('current-word');
+    const wordInputEl = document.getElementById('word-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const messageBoxEl = document.getElementById('message-box');
+    const wordHistoryEl = document.getElementById('word-history');
+
+    // 게임 데이터 상태 관리 변수
+    let currentWord = ''; // 현재 제시어
+    let usedWords = [];   // 이미 사용한 단어 목록
+
+    // 단어 제출 함수
+    function submitWord() {
+        const inputWord = wordInputEl.value.trim(); // 공백 제거
+        messageBoxEl.textContent = ''; // 메시지 초기화
+
+        // 1. 빈칸 검사
+        if (inputWord === '') {
+            messageBoxEl.textContent = '단어를 입력해주세요!';
+            return;
+        }
+
+        // 2. 글자수 검사 (2글자 이상만 허용)
+        if (inputWord.length < 2) {
+            messageBoxEl.textContent = '두 글자 이상의 단어만 가능합니다!';
+            return;
+        }
+
+        // 3. 중복 검사
+        if (usedWords.includes(inputWord)) {
+            messageBoxEl.textContent = '이미 사용한 단어입니다!';
+            return;
+        }
+
+        // 4. 첫 단어이거나, 끝말잇기 규칙에 맞는지 검사
+        if (currentWord === '' || currentWord[currentWord.length - 1] === inputWord[0]) {
+            // 규칙 통과 -> 게임 상태 업데이트
+            currentWord = inputWord;
+            usedWords.push(inputWord);
+            
+            // 화면 업데이트
+            currentWordEl.textContent = `제시어: ${currentWord}`;
+            wordHistoryEl.textContent = `이전 기록: ${usedWords.join(' -> ')}`;
+            
+            // 입력창 초기화 및 포커스
+            wordInputEl.value = '';
+            wordInputEl.focus();
+        } else {
+            // 규칙 실패
+            messageBoxEl.textContent = `틀렸습니다! '${currentWord[currentWord.length - 1]}'로 시작해야 합니다.`;
+        }
+    }
+
+    // 클릭 이벤트 연결
+    submitBtn.addEventListener('click', submitWord);
+
+    // 엔터키 이벤트 연결
+    wordInputEl.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            submitWord();
+        }
+    });
+</script>
+
+</body>
+</html>
